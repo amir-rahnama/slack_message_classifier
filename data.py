@@ -6,7 +6,13 @@ import json
 import langid
 import time
 import os
+import sys
 import numpy as np
+from pymongo import MongoClient
+client = MongoClient()
+
+db = client.sc
+messages_collection = db.messages
 
 sc = SlackClient(os.environ['SLACK_TOKEN'])
 
@@ -31,14 +37,9 @@ while (has_more):
 
             lang = langid.classify(message_text)[0]
             if (lang is not "en"):
-                samples.append(message_text)
-                labels.append(user)
+                messages_collection.insert_one(message)
 
     has_more = data["has_more"]
-    time.sleep(2)
+    time.sleep(5)
     i += 1
     print(i)
-
-pprint(samples)
-np.save('samples.npy', np.array(samples))
-np.save('labels.npy', np.array(labels))
